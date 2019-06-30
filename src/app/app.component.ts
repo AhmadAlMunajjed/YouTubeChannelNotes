@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { YoutubeService } from './services/youtube.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +11,9 @@ export class AppComponent {
 
   channelId: string;
   videos = [];
-  constructor(
+  loading: boolean;
 
+  constructor(
     private youtubeService: YoutubeService
   ) {
 
@@ -24,7 +26,10 @@ export class AppComponent {
       return;
     }
 
+    this.loading = true;
+
     this.youtubeService.getVideos(this.channelId).then(data => {
+      this.loading = false;
       console.log(data['items']);
       data['items'].forEach(item => {
         this.videos.push({
@@ -36,10 +41,16 @@ export class AppComponent {
       });
       this.videos = this.videos.sort(e => e.order);
       console.log(this.videos);
+    }).catch(() => {
+      this.loading = false;
     });
   }
 
   open(videoId) {
     window.open('https://www.youtube.com/watch?v=' + videoId, '_blank')
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.videos, event.previousIndex, event.currentIndex);
   }
 }
