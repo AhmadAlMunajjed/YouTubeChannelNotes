@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { YoutubeService } from './services/youtube.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Video, SavedVideo } from './models';
 
 @Component({
   selector: 'app-root',
@@ -22,39 +23,6 @@ export class AppComponent {
 
   }
 
-  getSavedVideos(): Array<SavedVideo> {
-    let savedVideosString = localStorage.getItem('savedvideos');
-    let savedVideos = JSON.parse(savedVideosString);
-    return savedVideos ? savedVideos : new Array<SavedVideo>();
-  }
-
-  updateNote(id, note) {
-    let savedVideos: Array<SavedVideo> = this.getSavedVideos();
-    let video = savedVideos.find(e => e.id == id);
-    if (video) { // edit
-      let index = savedVideos.findIndex(e => e.id == id);
-      savedVideos[index].note = note;
-    } else { // add
-      savedVideos.push({
-        id,
-        note,
-        order: this.getVideoOrder(id)
-      });
-    }
-
-    this.updateSavedVideos(savedVideos);
-    console.log('video');
-    console.log(video);
-  }
-
-  updateSavedVideos(savedVideos) {
-    localStorage.setItem('savedvideos', JSON.stringify(savedVideos));
-  }
-
-  getVideoOrder(id): number {
-    return this.videos.findIndex(e => e.id == id);
-  }
-
   getVideos() {
     this.videos = [];
 
@@ -68,18 +36,26 @@ export class AppComponent {
       if (!this.dataLoaded) {
         this.dataLoaded = true;
       }
-      
+
       this.loading = false;
       data['items'].forEach((item, index) => {
         this.videos.push({
           title: item.snippet.title,
           imageUrl: item.snippet.thumbnails.medium.url,
           id: item.id.videoId,
-          order: this.getOrder(item.id.videoId, index),
           note: this.getNote(item.id.videoId),
           immutableNote: this.getNote(item.id.videoId),
           editMode: false,
         });
+      });
+
+      this.onLoadVideos();
+
+      this.videos.forEach((video, index) => {
+        let savedIndex = this.getSavedOrder(video);
+        if (index != savedIndex) {
+          moveItemInArray(this.videos, index, savedIndex);
+        }
       });
 
     }).catch(() => {
@@ -87,24 +63,15 @@ export class AppComponent {
     });
   }
 
-  getNote(id) {
-    let savedVideos: Array<SavedVideo> = this.getSavedVideos();
-    let video = savedVideos.find(e => e.id == id);
-    return video ? video.note : "";
-  }
-
-  getOrder(id, defaultOrder) {
-    let savedVideos: Array<SavedVideo> = this.getSavedVideos();
-    let savedVideo = savedVideos.find(e => e.id == id);
-    return savedVideo ? savedVideo.order : defaultOrder;
-
-  }
-
   open(videoId) {
     window.open('https://www.youtube.com/watch?v=' + videoId, '_blank')
   }
 
   drop(event: CdkDragDrop<string[]>) {
+    let savedVideos = this.getSavedVideos();
+    moveItemInArray(savedVideos, event.previousIndex, event.currentIndex);
+    this.updateSavedVideos(savedVideos);
+
     moveItemInArray(this.videos, event.previousIndex, event.currentIndex);
   }
 
@@ -115,7 +82,7 @@ export class AppComponent {
   save(video) {
     video.immutableNote = video.note;
     video.editMode = false;
-    this.updateNote(video.id, video.note);
+    this.updateVideoNote(video.id, video.note);
   }
 
   cancel(video) {
@@ -123,20 +90,55 @@ export class AppComponent {
     video.editMode = false;
   }
 
-}
+  //#region private functions
+  private getSavedVideos(): Array<SavedVideo> {
+    let savedVideosString = localStorage.getItem('savedvideos_' + this.channelId);
+    let savedVideos = JSON.parse(savedVideosString);
+    return savedVideos ? savedVideos : new Array<SavedVideo>();
+  }
 
-export class SavedVideo {
-  id: string;
-  order: number;
-  note: string;
-}
+  private updateSavedVideos(savedVideos) {
+    localStorage.setItem('savedvideos_' + this.channelId, JSON.stringify(savedVideos));
+  }
 
-export class Video {
-  id: string;
-  title: string;
-  imageUrl: string;
-  order: number;
-  note: string;
-  immutableNote: string;
-  editMode: boolean;
+  private onLoadVideos() {
+    let savedVideos = this.getSavedVideos();
+
+    this.videos.forEach((video, index) => {
+      let savedVideo = savedVideos.find(e => e.id == video.id);
+      if (!savedVideo) {
+        savedVideos.push({
+          id: video.id,
+          note: ''
+        })
+      }
+    });
+
+    this.updateSavedVideos(savedVideos);
+  }
+
+  private updateVideoNote(id, note) {
+    let savedVideos = this.getSavedVideos();
+    let video = savedVideos.find(e => e.id == id);
+    if (video) {
+      let index = savedVideos.findIndex(e => e.id == id);
+      savedVideos[index].note = note;
+    }
+    this.updateSavedVideos(savedVideos);
+  }
+
+  private getSavedOrder(video) {
+    let savedVideos = this.getSavedVideos();
+    let index = savedVideos.findIndex(e => e.id == video.id);
+    return index;
+  }
+
+  private getNote(id) {
+    let savedVideos = this.getSavedVideos();
+    let video = savedVideos.find(e => e.id == id);
+    return video ? video.note : "";
+  }
+
+  //#endregion
+
 }
