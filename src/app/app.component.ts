@@ -38,10 +38,11 @@ export class AppComponent {
       }
 
       this.loading = false;
+      
       data['items'].forEach((item, index) => {
         this.videos.push({
           title: item.snippet.title,
-          imageUrl: item.snippet.thumbnails.medium.url,
+          imageUrl: item.snippet.thumbnails.default.url,
           id: item.id.videoId,
           note: this.getNote(item.id.videoId),
           immutableNote: this.getNote(item.id.videoId),
