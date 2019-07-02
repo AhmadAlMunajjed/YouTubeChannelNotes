@@ -1,2 +1,2 @@
-export * from './saved-video';
-export * from './video';
+export * from './saved-video.model';
+export * from './video.model';

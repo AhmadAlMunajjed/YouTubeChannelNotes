@@ -14,6 +14,7 @@ export class AppComponent {
   channelId: string;
   videos = Array<Video>();
   loading: boolean;
+  showData: boolean;
   dataLoaded: boolean;
   //#endregion
 
@@ -38,8 +39,10 @@ export class AppComponent {
       }
 
       this.loading = false;
-      
-      data['items'].forEach((item, index) => {
+      this.showData = false;
+
+      let items: Array<any> = data['items'];
+      items.map(item => {
         this.videos.push({
           title: item.snippet.title,
           imageUrl: item.snippet.thumbnails.default.url,
@@ -52,15 +55,22 @@ export class AppComponent {
 
       this.onLoadVideos();
 
-      this.videos.forEach((video, index) => {
-        let savedIndex = this.getSavedOrder(video);
-        if (index != savedIndex) {
-          moveItemInArray(this.videos, index, savedIndex);
-        }
-      });
+      this.sortVideos();
+
+      this.showData = true;
 
     }).catch(() => {
       this.loading = false;
+    });
+  }
+
+  private sortVideos() {
+    let videos = this.videos;
+    this.videos = [];
+    let savedVideos = this.getSavedVideos();
+    savedVideos.map(item => {
+      let video = videos.filter(e => e.id == item.id);
+      this.videos.push(video[0]);
     });
   }
 

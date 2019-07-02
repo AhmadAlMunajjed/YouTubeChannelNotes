@@ -27,17 +27,18 @@
             </div>
         </div>
 
-        <div class="row px-lg-5" cdkDropList (cdkDropListDropped)="drop($event)">
+        <div *ngIf="showData" class="row px-lg-5" cdkDropList (cdkDropListDropped)="drop($event)">
 
             <div class="col-12" *ngFor="let video of videos" cdkDrag>
 
                 <div class="card my-1">
                     <div class="card-horizontal">
                         <div class="img-square-wrapper">
-                            <img class="mt-lg-2 mt-3" [src]="video.imageUrl" [alt]="video.title">
+                            <img (click)="open(video.id)" class="mt-lg-2 ml-lg-2 mt-3 ml-1 pointer-cursor"
+                                [src]="video.imageUrl" [alt]="video.title">
                         </div>
                         <div class="card-body p-2">
-                            <h6 class="card-title d-inline-block">
+                            <h6 class="card-title d-inline-block" [title]="video.title">
                                 {{video.title}}
                             </h6>
                             <button (click)="open(video.id)" *ngIf="!video.editMode"

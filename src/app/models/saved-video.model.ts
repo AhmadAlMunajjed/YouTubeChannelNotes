@@ -1,4 +1,4 @@
-export class SavedVideo {
+export interface SavedVideo {
     id: string;
     note: string;
 }
