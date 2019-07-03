@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { YoutubeService } from './services/youtube.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Video, SavedVideo } from './models';
+import { Store } from '@ngrx/store';
+import { AppState } from './app.state';
+import { UpdateVideos } from './actions/video.actions';
 
 @Component({
   selector: 'app-root',
@@ -19,9 +22,12 @@ export class AppComponent {
   //#endregion
 
   constructor(
-    private youtubeService: YoutubeService
+    private youtubeService: YoutubeService,
+    private store: Store<AppState>
   ) {
-
+    this.store.select('videos').subscribe(savedVideos => {
+      console.log(savedVideos);
+    });
   }
 
   getVideos() {
@@ -33,7 +39,7 @@ export class AppComponent {
 
     this.loading = true;
 
-    this.youtubeService.getVideos(this.channelId).then(data => {
+    this.youtubeService.getVideos(this.channelId).then((data: any) => {
       if (!this.dataLoaded) {
         this.dataLoaded = true;
       }
@@ -41,8 +47,7 @@ export class AppComponent {
       this.loading = false;
       this.showData = false;
 
-      let items: Array<any> = data['items'];
-      items.map(item => {
+      data.items.map(item => {
         this.videos.push({
           title: item.snippet.title,
           imageUrl: item.snippet.thumbnails.default.url,
@@ -67,10 +72,14 @@ export class AppComponent {
   private sortVideos() {
     let videos = this.videos;
     this.videos = [];
+
     let savedVideos = this.getSavedVideos();
+    this.store.dispatch(new UpdateVideos(savedVideos));
     savedVideos.map(item => {
       let video = videos.filter(e => e.id == item.id);
-      this.videos.push(video[0]);
+      if (video) {
+        this.videos.push(video[0]);
+      }
     });
   }
 
@@ -109,6 +118,7 @@ export class AppComponent {
   }
 
   private updateSavedVideos(savedVideos) {
+    this.store.dispatch(new UpdateVideos(savedVideos));
     localStorage.setItem('savedvideos_' + this.channelId, JSON.stringify(savedVideos));
   }
 
@@ -130,6 +140,7 @@ export class AppComponent {
 
   private updateVideoNote(id, note) {
     let savedVideos = this.getSavedVideos();
+    this.store.dispatch(new UpdateVideos(savedVideos));
     let video = savedVideos.find(e => e.id == id);
     if (video) {
       let index = savedVideos.findIndex(e => e.id == id);
