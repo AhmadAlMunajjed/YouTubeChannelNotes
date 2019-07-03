@@ -24,8 +24,8 @@ import { AppComponent } from './app.component';
       videos: videosReducer
     }),
     SortablejsModule.forRoot({
-      animation: 400,
-      ghostClass: 'blue-background-class'
+      animation: 100,
+      // ghostClass: 'blue-background-class'
     }),
   ],
   providers: [],
