@@ -29,25 +29,21 @@
 
         <div *ngIf="showData" class="row px-lg-5" [sortablejs]="cities" [sortablejsOptions]="sortablejsOptions">
 
-            <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let video of videos">
+            <div class="p-1 col-lg-3 col-md-4 col-sm-6" *ngFor="let video of videos">
 
-                <div class="card my-1">
-                    <div class="card-horizontal">
-                        <div class="img-square-wrapper">
-                            <img (click)="open(video.id)" class="mt-lg-2 ml-lg-2 mt-3 ml-1 pointer-cursor"
-                                [src]="video.imageUrl" [alt]="video.title">
-                        </div>
-                        <div class="card-body p-2">
-                            <h6 class="card-title d-inline-block" [title]="video.title">
-                                {{video.title}}
-                            </h6>
+                <div class="card my-1" style="min-height: 20rem; max-height: 20rem">
+                    <img (click)="open(video.id)" class="card-img-top pointer-cursor" [src]="video.imageUrl"
+                        [alt]="video.title">
+                    <div class="card-body">
+                        <h6 class="card-title d-inline-block" [title]="video.title"> {{video.title}}</h6>
+                        <div class="d-inline-block">
                             <button (click)="open(video.id)" *ngIf="!video.editMode"
-                                class="btn btn-sm btn-primary mx-1">
-                                <strong>Open</strong>
+                                class="btn btn-sm btn-danger mx-1">
+                                <strong>Watch</strong>
                             </button>
 
                             <button (click)="edit(video)" *ngIf="!video.editMode" class="btn btn-sm btn-success mx-1">
-                                <strong>Edit</strong>
+                                <strong>Edit note</strong>
                             </button>
 
                             <button (click)="save(video)" *ngIf="video.editMode" class="btn btn-sm btn-success mx-1">
@@ -57,10 +53,11 @@
                             <button (click)="cancel(video)" *ngIf="video.editMode" class="btn btn-sm btn-defualt">
                                 <strong>Cancel</strong>
                             </button>
-
+                        </div>
+                        <p class="card-text mt-1">
                             <textarea [(ngModel)]="video.note" [readonly]="!video.editMode"
                                 [class.border-0]="!video.editMode" name="note" rows="2"></textarea>
-                        </div>
+                        </p>
                     </div>
                 </div>
             </div>
