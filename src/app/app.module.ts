@@ -5,9 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 // plugins
-import { DragDropModule } from '@angular/cdk/drag-drop';
 import { StoreModule } from '@ngrx/store';
 import { videosReducer } from './reducers';
+import { SortablejsModule } from "ngx-sortablejs";
 
 // components
 import { AppComponent } from './app.component';
@@ -20,10 +20,13 @@ import { AppComponent } from './app.component';
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    DragDropModule,
     StoreModule.forRoot({
       videos: videosReducer
-    })
+    }),
+    SortablejsModule.forRoot({
+      animation: 400,
+      ghostClass: 'blue-background-class'
+    }),
   ],
   providers: [],
   bootstrap: [AppComponent]

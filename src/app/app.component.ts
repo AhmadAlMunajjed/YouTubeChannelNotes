@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { YoutubeService } from './services/youtube.service';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Video, SavedVideo } from './models';
 import { Store } from '@ngrx/store';
 import { AppState } from './app.state';
 import { UpdateVideos } from './actions/video.actions';
+import { SortablejsOptions } from 'ngx-sortablejs';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +14,7 @@ import { UpdateVideos } from './actions/video.actions';
 export class AppComponent {
 
   //#region variables
+  sortablejsOptions: SortablejsOptions;
   channelId: string;
   videos = Array<Video>();
   loading: boolean;
@@ -28,6 +29,17 @@ export class AppComponent {
     this.store.select('videos').subscribe(savedVideos => {
       console.log(savedVideos);
     });
+    this.configureSortable();
+  }
+
+  private configureSortable() {
+    this.sortablejsOptions = {
+      onUpdate: (event) => {
+        let savedVideos = this.getSavedVideos();
+        this.moveItemInArray(savedVideos, event.oldIndex, event.newIndex);
+        this.updateSavedVideos(savedVideos);
+      }
+    };
   }
 
   getVideos() {
@@ -87,13 +99,6 @@ export class AppComponent {
     window.open('https://www.youtube.com/watch?v=' + videoId, '_blank')
   }
 
-  drop(event: CdkDragDrop<string[]>) {
-    let savedVideos = this.getSavedVideos();
-    moveItemInArray(savedVideos, event.previousIndex, event.currentIndex);
-    this.updateSavedVideos(savedVideos);
-
-    moveItemInArray(this.videos, event.previousIndex, event.currentIndex);
-  }
 
   edit(video) {
     video.editMode = true;
@@ -111,6 +116,18 @@ export class AppComponent {
   }
 
   //#region private functions
+  moveItemInArray(arr, old_index, new_index) {
+    if (new_index >= arr.length) {
+      var k = new_index - arr.length + 1;
+      while (k--) {
+        arr.push(undefined);
+      }
+    }
+    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+    return arr;
+  };
+
+
   private getSavedVideos(): Array<SavedVideo> {
     let savedVideosString = localStorage.getItem('savedvideos_' + this.channelId);
     let savedVideos = JSON.parse(savedVideosString);
