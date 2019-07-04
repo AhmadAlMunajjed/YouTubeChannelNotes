@@ -34,6 +34,7 @@ export class AppComponent {
 
   private configureSortable() {
     this.sortablejsOptions = {
+      delay: 75,
       onUpdate: (event) => {
         let savedVideos = this.getSavedVideos();
         this.moveItemInArray(savedVideos, event.oldIndex, event.newIndex);
@@ -99,8 +100,7 @@ export class AppComponent {
     window.open('https://www.youtube.com/watch?v=' + videoId, '_blank')
   }
 
-
-  edit(video) {
+  edit(event, video) {
     video.editMode = true;
   }
 

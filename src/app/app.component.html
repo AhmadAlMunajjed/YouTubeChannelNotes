@@ -13,12 +13,13 @@
                 <span *ngIf="loading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                 <span *ngIf="loading"> Loading...</span>
             </button>
+            <span class="p-lg-2">ex: UCz4tgANd4yy8Oe0iXCdSWfA </span>
         </div>
-
     </div>
 
     <div class="col-12 mt-4">
-        <h3 class="text-muted">Videos</h3>
+        <h3 class="d-inline-block">Videos</h3>
+        <h5 class="text-muted d-inline-block mx-2">(You can reorder the videos, long press to be able to drag it.)</h5>
         <hr>
 
         <div class="text-center" *ngIf="loading">
@@ -37,12 +38,12 @@
                     <div class="card-body">
                         <h6 class="card-title d-inline-block" [title]="video.title"> {{video.title}}</h6>
                         <div class="d-inline-block">
-                            <button (click)="open(video.id)" *ngIf="!video.editMode"
-                                class="btn btn-sm btn-danger mx-1">
+                            <button (click)="open(video.id)" *ngIf="!video.editMode" class="btn btn-sm btn-danger mx-1">
                                 <strong>Watch</strong>
                             </button>
 
-                            <button (click)="edit(video)" *ngIf="!video.editMode" class="btn btn-sm btn-success mx-1">
+                            <button (click)="edit($event, video)" *ngIf="!video.editMode"
+                                class="btn btn-sm btn-success mx-1">
                                 <strong>Edit note</strong>
                             </button>
 
